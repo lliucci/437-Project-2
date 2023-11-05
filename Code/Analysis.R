@@ -18,8 +18,6 @@ PCdat %>%
   ggplot(aes(x = PC1, y = PC2)) +
   geom_point()
 
-
-
 # Hierarchical Clustering -------------------------------------------------
 
 Dist <- dist(NumericData)
