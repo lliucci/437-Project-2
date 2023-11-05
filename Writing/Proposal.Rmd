@@ -1,6 +1,6 @@
 ---
 title: "Proposal"
-author: "Becky Catlett, Harley Clifton, Natasha Gesker,Eliot Liucci"
+author: "Becky Catlett, Harley Clifton, Natasha Gesker, Eliot Liucci"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
@@ -9,4 +9,4 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-We will be looking at the "Top Spotify Tracks of 2018" Dataset from the Kaggle Website. We are interested in using PCA and clustering analysis in order to find an interpretable structure of the data in order to gain understanding of music popularity in 2018. We will be using PCA to reduce the number of dimensions. Then we will be using the three different clustering techniques we learned, K-means, Hierarchical, and Model Based, in order to see patters in the data that may not otherwise be obvious.
+Our group will be doing a **data analysis**. We will be looking at the "Top Spotify Tracks of 2018" Dataset from the Kaggle Website. We are interested in using PCA and clustering analysis in order to find an interpretable structure of the data in order to gain understanding of music popularity in 2018. We will be using PCA to reduce the number of dimensions. Then we will be using the three different clustering techniques we learned, K-means, Hierarchical, and Model Based, in order to see patters in the data that may not otherwise be obvious.
