@@ -1,0 +1,60 @@
+---
+title: "Outline"
+author: "Becky Catlett, Harley Clifton, Natasha Gesker, Eliot Liucci"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Introduction
+
+Intro to the dataset and statistical problem
+
+
+### Data Cleaning & Variable Selection
+
+talk about variables here, why we are getting rid of some
+
+You may include other small sections that discuss specific details (e.g.
+“data cleaning” to address some issues in your data)
+
+
+
+## Model Selection
+
+Model section that discusses the specific methodology and statistical approach you are using the analyze the data
+
+
+### Agglomerative Heirarchical Clustering
+
+
+
+### K-Means Clustering
+
+
+
+### Model-Based Approach
+
+
+
+
+
+## Results
+
+Results section that presents your final results, with figures/tables, and
+meaningful interpretation of your results
+
+
+
+## Summary
+
+Summary section that highlights the main points of your analysis
+
+
+
+## Citations
+
