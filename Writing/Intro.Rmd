@@ -1,0 +1,14 @@
+---
+title: "Introduction and Dataset Description"
+author: "Becky Catlett"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+The dataset we will be working with in this project is called "Top Spotify Tracks of 2018" from Kaggle. This dataset includes numerous quantitative variables as well as some qualitative variables that include the song title, artist, and the Spotify url id. The quantitative variables are slightly less intuitive, including variable names such as danceability, energy, key, loudness, mode speechiness, acousticness, valence, and more. 
+
+We will be using a combination of PCA and Clustering analysis to manipulate and analyze data. 
