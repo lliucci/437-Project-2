@@ -1,0 +1,55 @@
+---
+title: "Data Visualization"
+author: "Harley Clifton"
+date: "November 5, 2023"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+```
+
+## Exploratory Data Analysis
+
+### Scatterplot Matrix for Quantiative Variables
+
+
+### WGSS against the Number of Clusters
+
+
+### Plot Clusters Against Principal Componenets against Clusters
+
+
+### Stripe Plot
+
+
+### black model spider looking plot
+
+
+### additional viz
+
+
+
+
+
+
+
+## Agglomerative Heirarchical Clustering
+
+
+
+## K-Means Clustering
+
+
+
+## Model-Based Approach
+
+
+
+
+## Explore How Categorical Variables Relate to the Clusters
+
+
