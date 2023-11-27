@@ -19,9 +19,11 @@ PCdat %>%
   ggplot(aes(x = PC1, y = PC2)) +
   geom_point()
 ```
+# Hierarchical Clustering -------------------------------------------------
 
+# K-Means Clustering ------------------------------------------------------
 
-K-means clustering started with choosing a number of clusters before starting. To decide how many clusters would be idea a Within-Group Sum of Squares (WGSS) plot was created using the origincal data. From this plot one could argue many different number of clusters would be appropriate. However, for the purposes of this analysis 15 clusters will be created. This was chosen because having too many groups would get overly confusing, especially considering there are only 100 data points. While 15 is still quite large it does get a WGSS of under about 500, more than half of where the WGSS is with only 1 group.
+K-means clustering started with choosing a number of clusters before starting. To decide how many clusters would be idea a Within-Group Sum of Squares (WGSS) plot was created using the original data. From this plot one could argue many different number of clusters would be appropriate. However, for the purposes of this analysis 15 clusters will be created. This was chosen because having too many groups would get overly confusing, especially considering there are only 100 data points. While 15 is still quite large it does get a WGSS of under about 500, more than half of where the WGSS is with only 1 group.
 
 ```{r}
 n <- nrow(NumericData)
@@ -36,7 +38,7 @@ plot(1:40, wss, type = "b", xlab = "Number of groups",
      main = "Within-Group Sum of Squares (WGSS) Plot") # decided to use k = 15
 ```
 
-The 'kmeans' function was used to create to assign each original data point to one of the 15 groups. We then visualized this groups using the first two principal components. One can see that from a single glance these groups do not make a lot of sense for this data set. While groups tend to have clear centers and pretty consistent variability within groups, for interpreting what these results mean this method is not ideal for this data set.
+The 'kmeans' function was used to create to assign each original data point to one of the 15 groups. When visualizing these clusters over the PC Plot, one can see that from a single glance these groups do not make a lot of sense for this data set. While groups tend to have clear centers and pretty consistent variability within groups, for interpreting what these results mean this method is not ideal for this data set.
 
 ```{r}
 set.seed(1234)
@@ -50,4 +52,32 @@ PCdat %>%
 
 SilhouetteKMeans <- silhouette(kmeans(NumericData, centers = 15)$cluster, Dist)
 ```
+
+# Model Based Clustering --------------------------------------------------
+
+For the model based clustering method assumes distributions for both the population and the sub population. While the pdfs are defined for these distributions for the purposes fo this data they will not be discussed in detail. The `Mclust` function created five separate clusters. Based on the classifications there is one point that stands out. Observation 44 is alone in its own cluster, this could either indicate that this observation is an outlier or that this clutering method is faulty.
+
+```{r}
+MClusters <- Mclust(NumericData)
+
+MClusts <- tibble(MClusts = MClusters$classification)
+PCdat <- cbind(PCdat, MClusts)
+PCdat <- PCdat %>%
+  mutate(MClusts = factor(MClusts))
+```
+
+When visualizing these clusters over the PC Plot, one can see that the the point in cluster 5 does appear to be out on its own compared to the other clusters. While there is some overlapping from cluster 1 across the other points, in this plot is easier to see the trends of the various clusters, especially cluster 2 and and 4.
+
+```{r}
+PCdat %>%
+  ggplot(aes(x = PC1, y = PC2, color = MClusts)) +
+  geom_point() +
+  labs(title = "Scatterplot of Points in PC space", subtitle = "from Model-Based Clustering", color = "Cluster")
+
+SilhouetteModelBased <- silhouette(Mclust(NumericData)$classification, Dist)
+```
+
+
+
+
 

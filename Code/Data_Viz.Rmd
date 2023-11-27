@@ -163,7 +163,7 @@ stripes(c5, type = "second", col = "black")
 
 In the additional visualization, the line thickness is representative of the strength of the relationship between clusters. If the line is thin, it means it is far to the next cluster; if it is thick, it is close to the next cluster.
 
-The stripe plot is used to visualize shadow variables by themselves. In the plot above, the stripes represent just the second closest cluster. Since they are pretty far apart within each cluster, we can be confident that they should be seperate clusters and do not need to be further merged.
+The stripe plot is used to visualize shadow variables by themselves. In the plot above, the stripes represent just the second closest cluster. Since they are pretty far apart within each cluster, we can be confident that they should be separate clusters and do not need to be further merged.
 
 
 $~$
