@@ -19,7 +19,43 @@ PCdat %>%
   ggplot(aes(x = PC1, y = PC2)) +
   geom_point()
 ```
+
 # Hierarchical Clustering -------------------------------------------------
+
+For the hierarchical clustering method clusters are based on the distance matrix. With the _single_ method, it connects the points based on the minimum distance of the clusters. However, the strange shape of the dendrogram is due to the Single Linkage resulting in "chaining", meaning the clusters just grow, instead of new clusters being formed. This can be problematic because we only need a single pair of points to be close to merge two clusters.Therefore, clusters can be too spread out and not compact enough. The _average_ method, which connects the points based on average distances of the clusters, also has the same phenomenon occurring.
+
+```{r}
+Dist <- dist(NumericData)
+
+plot(hclust(Dist, method = 'single'))
+plot(hclust(Dist, method = 'average'))
+```
+
+
+The _complete_ method, which connects the points based on the maximum distance of the clusters does not have any "chaining" issues. When determining what height to cut off the groups, we chose height 7 as that is the first time we start to see a lot fo tiny groups forming into larger groups.
+
+```{r}
+plot(hclust(Dist, method = "complete"))
+
+Clusters <- cutree(hclust(Dist, method = "complete"), h = 7)
+ClusterMerger <- tibble(HClusters = Clusters)
+PCdat <- cbind(PCdat, ClusterMerger)
+
+PCdat <- PCdat %>%
+  mutate(HClusters = factor(HClusters))
+```
+
+When visualizing these clusters over the PC Plot it seems that cluster 3 starts to take over most of the points. When comparing it to cluster 1, it is not entirely clear why a point should be in one group compared to another. There are also a lot of little groups that are in the outskirts of the plot. While you could argue that making less clusters by increasing the height, if the clustering logic already appears to be faulty at this point it may be detrimental to the process by making too few clusters.
+
+```{r}
+PCdat %>%
+  ggplot(aes(x = PC1, y = PC2, label = rownames(PCdat), color = HClusters)) +
+  geom_point() +
+  labs(title = "Scatterplot of Points in PC space", subtitle = "colored by cluster when cutting at a height of 7", color = "Cluster")
+
+SilhouetteHAC <- silhouette(cutree(hclust(Dist, method = 'average'), 7), Dist)
+```
+
 
 # K-Means Clustering ------------------------------------------------------
 
