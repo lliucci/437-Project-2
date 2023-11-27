@@ -6,50 +6,220 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 
+library(ape)
+library(MVA)
 library(tidyverse)
+library(mclust)
+library(cluster)
+library(psych)
+
+Data <- read_csv('../Data/top2018.csv')
+NumericData <- Data %>% select(4:16) %>% scale()
+
+PrinComps <- prcomp(NumericData)
+PCdat <- as.tibble(PrinComps$x[,1:2])
 
 ```
 
 ## Exploratory Data Analysis
 
-### Scatterplot Matrix for Quantiative Variables
+### Scatterplot Matrix for Quantitative Variables
 
+```{r, echo = F, fig.cap = "Scatterplot Matix of the Quantitative Variables in the Spotify 2018 Dataset."}
 
-### WGSS against the Number of Clusters
+pairs.panels(NumericData, 
+             method = "pearson", # correlation method
+             hist.col = "springgreen2",
+             density = TRUE,  # show density plot
+             ellipses = FALSE # do not show correlation ellipses
+             )
+```
+
+From the above scatterplot matrix, created using the `psych` package in `R`, we can see variable pairs that are notably correlated with each other. Energy and Loudness have a moderately strong, positive correlation (r = 0.73). All other pairs of numeric variables in this dataset have weak or non-existent correlations.
+
 
 
 ### Plot Clusters Against Principal Componenets against Clusters
 
+```{r}
+#pca.dat <- data.frame(dat, pca.auto$x[, 1:2])
 
-### Stripe Plot
+ggplot(aes(x = PC1, y = PC2), data = PCdat) + 
+  geom_point(col = "springgreen2") +
+  labs(title = "Plot of Prinipal Componenets 1 & 2",
+       x = "Principal Componenet 1",
+       y = "Principal Componenet 2") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5))
+```
 
 
-### black model spider looking plot
-
-
-### additional viz
 
 
 
-
-
-
+$~$
 
 ## Agglomerative Heirarchical Clustering
 
+### Assessing differences between the three Hierarchical Clustering Algorithms for the three Linking Methods
 
+```{r, fig.cap = "Dendrograms for the 3 Linking Methods for Hierarchical Clustering."}
+Dist <- dist(NumericData)
+
+par(mfrow = c(1, 3))
+plot(hclust(Dist, method = "complete"))
+plot(hclust(Dist, method = 'single'))
+plot(hclust(Dist, method = 'average'))
+```
+
+With the _single_ method, it connects the closest points of the clusters. The strange shape of the dendrogram is due to the Single Linkage resulting in "chaining", meaning the clusters just grow, instead of new clusters being formed. This can be problematic because we only need a single pair of points to be close to merge two clusters. Therefore, clusters can be too spread out and not compact enough. There is also the same phenomenon occurring with the _average_ method.
+
+
+### Plotting Heirarchical Clusters Against First Two Principal Componenets
+
+```{r}
+Clusters <- cutree(hclust(Dist, method = "complete"), h = 7)
+ClusterMerger <- tibble(HClusters = Clusters)
+PCdat <- cbind(PCdat, ClusterMerger)
+
+PCdat <- PCdat %>%
+  mutate(HClusters = factor(HClusters))
+
+ggplot(aes(x = PC1, y = PC2, color = HClusters), data = PCdat) +
+  geom_point(size = 2.5, alpha = 0.85) +
+  labs(title = "Hierarchical Clusters with Complete Linkage in Principal Component Space",
+       subtitle = "Points are colored by clusters when cutting at a height of 7",
+       x = "Principal Component 1",
+       y = "Principal Component 2",
+       color = "Cluster") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) +
+  scale_color_manual(values = c( "mediumvioletred", "deeppink", "orange1", "yellow1", "black", "lightgreen", "mediumturquoise", "deepskyblue", "plum2", "magenta3"))
+
+```
+
+
+
+
+$~$
 
 ## K-Means Clustering
 
 
+### WGSS against the Number of Clusters
+
+```{r}
+n <- nrow(NumericData)
+wss <- rep(0, 40)
+wss[1] <- (n - 1) * sum(sapply(NumericData, var))
+for (i in 2:40){
+  wss[i] <- sum(kmeans(NumericData,
+                       centers = i)$withinss)
+}
+
+plot(1:40, wss, type = "b", xlab = "Number of Groups",
+     ylab = "Within Groups Sum of Squares")
+```
+Based on the plot of the Within Group Sums of Squares (WGSS) against the Number of Clusters, it appears like k = 15 would be an appropriate number of clusters to adequately represent this data.
+
+
+### Plotting K-Means Clusters Against First Two Principal Componenets
+
+```{r}
+set.seed(1234)
+KMeanClusts <- tibble(KClusters = kmeans(NumericData, centers = 15)$cluster)
+PCdat <- bind_cols(PCdat, KMeanClusts)
+
+ggplot(aes(x = PC1, y = PC2, color = factor(KClusters)), data = PCdat) +
+  geom_point(size = 2.5, alpha = 0.75) +
+  labs(title = "K-Means Clusters in Principal Component Space",
+       subtitle = "From K-Means Clustering with 15 Clusters",
+       x = "Principal Component 1",
+       y = "Principal Component 2",
+       color = "Cluster") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) +
+  scale_color_manual(values = c( "mediumvioletred", "deeppink", "lightpink1", "orange1","gold", "yellow1", "palegreen", "seagreen2", "mediumturquoise", "paleturquoise2", "deepskyblue", "plum2", "magenta3", "snow3", "black"))
+```
+
+
+### Additional Vizualization & Stripe Plot for K-Means Clustering
+
+```{r}
+PCdat.km <- as.matrix(PCdat[, c(1:2,4)])
+
+#par(mfrow = c(1,2))
+
+set.seed(1234)
+c5 <- cclust(PCdat.km, k = 15, save.data = T)
+plot(c5, hull = FALSE, pch = 16)
+stripes(c5, type = "second", col = "black")
+```
+
+In the additional visualization, the line thickness is representative of the strength of the relationship between clusters. If the line is thin, it means it is far to the next cluster; if it is thick, it is close to the next cluster.
+
+The stripe plot is used to visualize shadow variables by themselves. In the plot above, the stripes represent just the second closest cluster. Since they are pretty far apart within each cluster, we can be confident that they should be separate clusters and do not need to be further merged.
+
+
+$~$
 
 ## Model-Based Approach
 
+### Number of Componenets vs. Bayesian Information Criterion Plot
+
+```{r}
+MClusters <- Mclust(NumericData)
+
+unique(MClusters$classification)
+
+plot(MClusters, what = "BIC", col = "black")
+```
+
+The plot above uses Bayesian Information Criterion (BIC), which penalizes models for additional components, to determine which model-based clustering method is best. Here, we want to _maximize_ the BIC. Based on the plot, the algorithm selected the "EEV" (ellipsoidal, equal volume and equal shape) model with _5_ clusters as the superior model.
 
 
+# Plotting Model-Based Clusters Against First Two Principal Componenets
+
+```{r}
+MClusts <- tibble(MClusts = MClusters$classification)
+PCdat <- cbind(PCdat, MClusts)
+PCdat <- PCdat %>%
+  mutate(MClusts = factor(MClusts))
+
+ggplot(aes(x = PC1, y = PC2, color = MClusts), data = PCdat) +
+  geom_point(size = 2.5, alpha = 0.75) +
+  labs(title = "Model-Based Clusters in Principal Component Space",
+       x = "Principal Component 1",
+       y = "Principal Component 2",
+       color = "Cluster") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual(values = c( "deeppink", "orange1", "yellow1", "mediumturquoise", "magenta3"))
+```
+
+
+
+$~$
 
 ## Explore How Categorical Variables Relate to the Clusters
 
+The two categorical variables available in the dataset that would be most interesting to see if there were any patterns with clustering would be song artist and time signature.
+
+```{r}
+## This is code to reference, not functional for our data yet
+
+
+pr <- prcomp(dj)$x[, 1:2]
+plot(pr, pch = (16:17)[cutree(cc, k = 2)],
+     col = c("black", "darkgrey")[jet$CAR], 
+     xlim = range(pr) * c(1, 1.5), cex = 1)
+legend("topright", col = c("black", "black", 
+                           "darkgrey", "darkgrey"), 
+       legend = c("1 / no", "2 / no", "1 / yes", "2 / yes"), 
+       pch = c(16:17, 16:17), title = "Cluster / CAR", bty = "n", cex = 1)
+```
 

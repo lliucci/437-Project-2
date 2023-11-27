@@ -1,0 +1,53 @@
+```{r}
+library(ape)
+library(MVA)
+library(tidyverse)
+library(mclust)
+library(cluster)
+```
+
+```{r}
+Data <- read_csv('../Data/top2018.csv')
+NumericData <- Data %>% select(4:16) %>% scale()
+
+PrinComps <- prcomp(NumericData)
+summary(PrinComps)
+
+PCdat <- as.tibble(PrinComps$x[,1:2])
+
+PCdat %>%
+  ggplot(aes(x = PC1, y = PC2)) +
+  geom_point()
+```
+
+
+K-means clustering started with choosing a number of clusters before starting. To decide how many clusters would be idea a Within-Group Sum of Squares (WGSS) plot was created using the origincal data. From this plot one could argue many different number of clusters would be appropriate. However, for the purposes of this analysis 15 clusters will be created. This was chosen because having too many groups would get overly confusing, especially considering there are only 100 data points. While 15 is still quite large it does get a WGSS of under about 500, more than half of where the WGSS is with only 1 group.
+
+```{r}
+n <- nrow(NumericData)
+wss <- rep(0, 40)
+wss[1] <- (n - 1) * sum(sapply(NumericData, var))
+for (i in 2:40){
+  wss[i] <- sum(kmeans(NumericData,
+                       centers = i)$withinss)
+}
+plot(1:40, wss, type = "b", xlab = "Number of groups",
+     ylab = "Within groups sum of squares",
+     main = "Within-Group Sum of Squares (WGSS) Plot") # decided to use k = 15
+```
+
+The 'kmeans' function was used to create to assign each original data point to one of the 15 groups. We then visualized this groups using the first two principal components. One can see that from a single glance these groups do not make a lot of sense for this data set. While groups tend to have clear centers and pretty consistent variability within groups, for interpreting what these results mean this method is not ideal for this data set.
+
+```{r}
+set.seed(1234)
+KMeanClusts <- tibble(KClusters = kmeans(NumericData, centers = 15)$cluster)
+PCdat <- bind_cols(PCdat, KMeanClusts)
+
+PCdat %>%
+  ggplot(aes(x = PC1, y = PC2, color = factor(KClusters))) +
+  geom_point() +
+  labs(title = "Scatterplot of Points in PC space", subtitle = "from K-Means Clustering with 15 Clusters", color = "Cluster")
+
+SilhouetteKMeans <- silhouette(kmeans(NumericData, centers = 15)$cluster, Dist)
+```
+
