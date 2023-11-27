@@ -31,7 +31,7 @@ plot(hclust(Dist, method = "complete"))
 plot(hclust(Dist, method = 'single'))
 plot(hclust(Dist, method = 'average'))
 
-Clusters <- cutree(hclust(Dist, method = "complete"), h = 7)
+Clusters <- cutree(hclust(Dist, method = "complete"), h = 5)
 ClusterMerger <- tibble(HClusters = Clusters)
 ClustDat <- cbind(NumericData, ClusterMerger)
 
@@ -40,19 +40,19 @@ ClustDat <- ClustDat %>%
 
 variables <- colnames(ClustDat)
 
-# for(i in variable){
-  # for(j in variables){
+for(i in 1:14){
+  for(j in 1:14){
     ClustDat2 <- ClustDat[,c(i,j, 14)]
     colnames(ClustDat2) <- list("x", "y", "HClusters")
 
-    ClustDat2 %>% 
+    plot <- ClustDat2 %>% 
       ggplot(aes(x = x,y = y, color = HClusters)) +
       labs(x = paste(variables[i]), y = paste(variables[j])) +
       geom_point()
     
-    ggsave(plot, filename = paste("../Graphics/HClust_Plot_", variables[i], "_", variables[j], ".png", sep = ''))
-  # }
-# }
+    ggsave(plot, filename = paste("../Hierarchical_Graphics/HClust_Plot_", variables[i], "_", variables[j], ".png", sep = ''))
+  }
+}
 
 ClustDat %>%
   ggplot(aes(x = , y = , label = rownames(PCdat), color = HClusters)) +
@@ -75,7 +75,21 @@ plot(1:40, wss, type = "b", xlab = "Number of groups",
 
 set.seed(1234)
 KMeanClusts <- tibble(KClusters = kmeans(NumericData, centers = 15)$cluster)
-PCdat <- bind_cols(PCdat, KMeanClusts)
+ClustDat <- bind_cols(NumericData, KMeanClusts)
+
+for(i in 1:14){
+  for(j in 1:14){
+    ClustDat2 <- ClustDat[,c(i,j, 14)]
+    colnames(ClustDat2) <- list("x", "y", "KClusters")
+    
+    plot <- ClustDat2 %>% 
+      ggplot(aes(x = x,y = y, color = factor(KClusters))) +
+      labs(x = paste(variables[i]), y = paste(variables[j])) +
+      geom_point()
+    
+    ggsave(plot, filename = paste("../KMeans_Graphics/KClust_Plot_", variables[i], "_", variables[j], ".png", sep = ''))
+  }
+}
 
 PCdat %>%
   ggplot(aes(x = PC1, y = PC2, color = factor(KClusters))) +
@@ -90,9 +104,23 @@ SilhouetteKMeans <- silhouette(kmeans(NumericData, centers = 15)$cluster, Dist)
 MClusters <- Mclust(NumericData)
 
 MClusts <- tibble(MClusts = MClusters$classification)
-PCdat <- cbind(PCdat, MClusts)
-PCdat <- PCdat %>%
+ClustDat <- cbind(NumericData, MClusts)
+ClustDat <- ClustDat %>%
   mutate(MClusts = factor(MClusts))
+
+for(i in 1:14){
+  for(j in 1:14){
+    ClustDat2 <- ClustDat[,c(i,j, 14)]
+    colnames(ClustDat2) <- list("x", "y", "MClusts")
+    
+    plot <- ClustDat2 %>% 
+      ggplot(aes(x = x,y = y, color = MClusts)) +
+      labs(x = paste(variables[i]), y = paste(variables[j])) +
+      geom_point()
+    
+    ggsave(plot, filename = paste("../Model_Based_Graphics/MClust_Plot_", variables[i], "_", variables[j], ".png", sep = ''))
+  }
+}
 
 PCdat %>%
   ggplot(aes(x = PC1, y = PC2, color = MClusts)) +
