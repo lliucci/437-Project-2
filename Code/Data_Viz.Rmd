@@ -44,7 +44,7 @@ From the above scatterplot matrix, created using the `psych` package in `R`, we 
 
 ### Plot Clusters Against Principal Componenets against Clusters
 
-```{r}
+```{r, echo = F}
 #pca.dat <- data.frame(dat, pca.auto$x[, 1:2])
 
 ggplot(aes(x = PC1, y = PC2), data = PCdat) + 
@@ -66,7 +66,7 @@ $~$
 
 ### Assessing differences between the three Hierarchical Clustering Algorithms for the three Linking Methods
 
-```{r, fig.cap = "Dendrograms for the 3 Linking Methods for Hierarchical Clustering."}
+```{r, echo = F, fig.cap = "Dendrograms for the 3 Linking Methods for Hierarchical Clustering."}
 Dist <- dist(NumericData)
 
 par(mfrow = c(1, 3))
@@ -80,7 +80,7 @@ With the _single_ method, it connects the closest points of the clusters. The st
 
 ### Plotting Heirarchical Clusters Against First Two Principal Componenets
 
-```{r}
+```{r, echo = F}
 Clusters <- cutree(hclust(Dist, method = "complete"), h = 7)
 ClusterMerger <- tibble(HClusters = Clusters)
 PCdat <- cbind(PCdat, ClusterMerger)
@@ -112,7 +112,7 @@ $~$
 
 ### WGSS against the Number of Clusters
 
-```{r}
+```{r, echo = F}
 n <- nrow(NumericData)
 wss <- rep(0, 40)
 wss[1] <- (n - 1) * sum(sapply(NumericData, var))
@@ -129,7 +129,7 @@ Based on the plot of the Within Group Sums of Squares (WGSS) against the Number 
 
 ### Plotting K-Means Clusters Against First Two Principal Componenets
 
-```{r}
+```{r, echo = F}
 set.seed(1234)
 KMeanClusts <- tibble(KClusters = kmeans(NumericData, centers = 15)$cluster)
 PCdat <- bind_cols(PCdat, KMeanClusts)
@@ -150,7 +150,7 @@ ggplot(aes(x = PC1, y = PC2, color = factor(KClusters)), data = PCdat) +
 
 ### Additional Vizualization & Stripe Plot for K-Means Clustering
 
-```{r}
+```{r, echo = F}
 PCdat.km <- as.matrix(PCdat[, c(1:2,4)])
 
 #par(mfrow = c(1,2))
@@ -172,7 +172,7 @@ $~$
 
 ### Number of Componenets vs. Bayesian Information Criterion Plot
 
-```{r}
+```{r, echo = F}
 MClusters <- Mclust(NumericData)
 
 unique(MClusters$classification)
@@ -185,7 +185,7 @@ The plot above uses Bayesian Information Criterion (BIC), which penalizes models
 
 # Plotting Model-Based Clusters Against First Two Principal Componenets
 
-```{r}
+```{r, echo = F}
 MClusts <- tibble(MClusts = MClusters$classification)
 PCdat <- cbind(PCdat, MClusts)
 PCdat <- PCdat %>%
@@ -210,7 +210,7 @@ $~$
 
 The two categorical variables available in the dataset that would be most interesting to see if there were any patterns with clustering would be song artist and time signature.
 
-```{r}
+```{r, echo = F}
 ## This is code to reference, not functional for our data yet
 
 
