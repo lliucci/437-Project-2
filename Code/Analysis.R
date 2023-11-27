@@ -1,4 +1,4 @@
-setwd("C:/Users/eliot/Desktop/Fall 2023/Multivariate Analysis/437-Project-2/Code")
+setwd("C:/Users/eliot/OneDrive/Desktop/437-Project-2/Code")
 
 library(ape)
 library(MVA)
@@ -11,11 +11,16 @@ NumericData <- Data %>% select(4:16) %>% scale()
 
 PrinComps <- prcomp(NumericData)
 summary(PrinComps)
+PrinComps
 
 PCdat <- as.tibble(PrinComps$x[,1:2])
 
 PCdat %>%
   ggplot(aes(x = PC1, y = PC2)) +
+  geom_point()
+
+Data %>% 
+  ggplot(aes(x = danceability, y = energy)) +
   geom_point()
 
 # Hierarchical Clustering -------------------------------------------------
@@ -28,13 +33,29 @@ plot(hclust(Dist, method = 'average'))
 
 Clusters <- cutree(hclust(Dist, method = "complete"), h = 7)
 ClusterMerger <- tibble(HClusters = Clusters)
-PCdat <- cbind(PCdat, ClusterMerger)
+ClustDat <- cbind(NumericData, ClusterMerger)
 
-PCdat <- PCdat %>%
+ClustDat <- ClustDat %>%
   mutate(HClusters = factor(HClusters))
 
-PCdat %>%
-  ggplot(aes(x = PC1, y = PC2, label = rownames(PCdat), color = HClusters)) +
+variables <- colnames(ClustDat)
+
+# for(i in variable){
+  # for(j in variables){
+    ClustDat2 <- ClustDat[,c(i,j, 14)]
+    colnames(ClustDat2) <- list("x", "y", "HClusters")
+
+    ClustDat2 %>% 
+      ggplot(aes(x = x,y = y, color = HClusters)) +
+      labs(x = paste(variables[i]), y = paste(variables[j])) +
+      geom_point()
+    
+    ggsave(plot, filename = paste("../Graphics/HClust_Plot_", variables[i], "_", variables[j], ".png", sep = ''))
+  # }
+# }
+
+ClustDat %>%
+  ggplot(aes(x = , y = , label = rownames(PCdat), color = HClusters)) +
   geom_point() +
   labs(title = "Scatterplot of Points in PC space", subtitle = "colored by cluster when cutting at a height of 7", color = "Cluster")
 

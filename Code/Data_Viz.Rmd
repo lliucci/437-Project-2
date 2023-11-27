@@ -14,6 +14,7 @@ library(tidyverse)
 library(mclust)
 library(cluster)
 library(psych)
+library(flexclust)
 
 Data <- read_csv('../Data/top2018.csv')
 NumericData <- Data %>% select(4:16) %>% scale()
