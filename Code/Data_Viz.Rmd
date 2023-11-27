@@ -210,7 +210,7 @@ $~$
 
 The two categorical variables available in the dataset that would be most interesting to see if there were any patterns with clustering would be song artist and time signature.
 
-```{r, echo = F}
+```{r, echo = F, eval = F}
 ## This is code to reference, not functional for our data yet
 
 
