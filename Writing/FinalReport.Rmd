@@ -1,4 +1,15 @@
-```{r}
+---
+title: "Outline"
+author: "Becky Catlett, Harley Clifton, Natasha Gesker, Eliot Liucci"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
 library(ape)
 library(MVA)
 library(tidyverse)
@@ -6,23 +17,30 @@ library(mclust)
 library(cluster)
 ```
 
-```{r}
-Data <- read_csv('../Data/top2018.csv')
-NumericData <- Data %>% select(4:16) %>% scale()
+## Introduction
 
-PrinComps <- prcomp(NumericData)
-summary(PrinComps)
+The dataset being explored in this project is from Kaggle and is called "Top Spotify Tracks of 2018." This dataset includes numerous quantitative variables as well as some qualitative variables, such as the song title, artist, and the Spotify url ID. The quantitative variables are slightly less intuitive, such as danceability, energy, key, loudness (in dB), mode, speechiness, and acousticness. Most of these quantitative variables range from 0 to 1, where 1 is the highest measure and 0 indicates a low/null value. Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. Speechiness is how often words are present in the song, and mode indicates the modality, which is whether the song is written in major (1) or minor (0). Acousticness is how acoustic the song is, versus a non-acoustic song which would be composed of lots of electronics. Energy is essentially describing the tempo of the song, whether is song is slower and sleepier or more upbeat. 
 
-PCdat <- as.tibble(PrinComps$x[,1:2])
+We will be using PCA and clustering analysis to find an model structure of the data that is more easily interpreted. The goal of this is to gain an understanding of music popularity in 2018 using Spotify data. We will be using PCA to reduce the number of dimensions since there are 16 different variables and only 100 observations. From there, we will explore k-means, hierarchical, and model-based clustering to analyze the data and see what relationships occur between variables that may not be obvious without the application of clustering methods.
 
-PCdat %>%
-  ggplot(aes(x = PC1, y = PC2)) +
-  geom_point()
-```
+Below is code for three different clustering techniques, from which we will chose one to use for our analysis of the Spotify data. Including all three methods ensures that the method we choose for our analysis is one that best minimizes the **sum of squares?** of the data. Although all statistical results have uncertainty, the goal is to use the best statistical method to get rid of a lot of uncertainty in the results. Clustering/classification results are useful for artists, songwriters, producers, and many more individuals that are looking for qualities of a hit song.
 
-# Hierarchical Clustering -------------------------------------------------
+### Data Cleaning & PCA
 
-For the hierarchical clustering method clusters are based on the distance matrix. With the _single_ method, it connects the points based on the minimum distance of the clusters. However, the strange shape of the dendrogram is due to the Single Linkage resulting in "chaining", meaning the clusters just grow, instead of new clusters being formed. This can be problematic because we only need a single pair of points to be close to merge two clusters.Therefore, clusters can be too spread out and not compact enough. The _average_ method, which connects the points based on average distances of the clusters, also has the same phenomenon occurring.
+talk about variables here, why we are getting rid of some
+
+You may include other small sections that discuss specific details (e.g.
+“data cleaning” to address some issues in your data)
+
+
+
+## Cluster Methods
+
+For this analysis three clusters will be explored: Agglomerative Hierarchical, K-Means, and Model-Based. 
+
+### Agglomerative Heirarchical Clustering
+
+For the hierarchical clustering method clusters are based on the distance matrix. With the *single* method, it connects the points based on the minimum distance of the clusters. However, the strange shape of the dendrogram is due to the Single Linkage resulting in "chaining", meaning the clusters just grow, instead of new clusters being formed. This can be problematic because we only need a single pair of points to be close to merge two clusters.Therefore, clusters can be too spread out and not compact enough. The *average* method, which connects the points based on average distances of the clusters, also has the same phenomenon occurring.
 
 ```{r}
 Dist <- dist(NumericData)
@@ -55,8 +73,7 @@ PCdat %>%
 SilhouetteHAC <- silhouette(cutree(hclust(Dist, method = 'average'), 7), Dist)
 ```
 
-
-# K-Means Clustering ------------------------------------------------------
+### K-Means Clustering
 
 K-means clustering started with choosing a number of clusters before starting. To decide how many clusters would be idea a Within-Group Sum of Squares (WGSS) plot was created using the original data. From this plot one could argue many different number of clusters would be appropriate. However, for the purposes of this analysis 15 clusters will be created. This was chosen because having too many groups would get overly confusing, especially considering there are only 100 data points. While 15 is still quite large it does get a WGSS of under about 500, more than half of where the WGSS is with only 1 group.
 
@@ -88,7 +105,7 @@ PCdat %>%
 SilhouetteKMeans <- silhouette(kmeans(NumericData, centers = 15)$cluster, Dist)
 ```
 
-# Model Based Clustering --------------------------------------------------
+### Model-Based Approach
 
 For the model based clustering method assumes distributions for both the population and the sub population. While the pdfs are defined for these distributions for the purposes fo this data they will not be discussed in detail. The `Mclust` function created five separate clusters. Based on the classifications there is one point that stands out. Observation 44 is alone in its own cluster, this could either indicate that this observation is an outlier or that this clutering method is faulty.
 
@@ -112,7 +129,17 @@ PCdat %>%
 SilhouetteModelBased <- silhouette(Mclust(NumericData)$classification, Dist)
 ```
 
+## Results
+
+Results section that presents your final results, with figures/tables, and
+meaningful interpretation of your results
 
 
 
+## Summary
 
+Summary section that highlights the main points of your analysis
+
+
+
+## Citations
