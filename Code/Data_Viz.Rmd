@@ -42,7 +42,7 @@ From the above scatterplot matrix, created using the `psych` package in `R`, we 
 
 
 
-### Plot Clusters Against Principal Componenets against Clusters
+### Plot Clusters Against Principal Componenets
 
 ```{r, echo = F}
 #pca.dat <- data.frame(dat, pca.auto$x[, 1:2])
