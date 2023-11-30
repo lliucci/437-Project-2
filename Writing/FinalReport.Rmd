@@ -1,6 +1,6 @@
 ---
-title: "Outline"
-author: "Becky Catlett, Harley Clifton, Natasha Gesker, Eliot Liucci"
+title: "STAT 437 - Project 2 Spotify Data Analysis"
+author: "Becky Catlett, Harley Clifton, Natasha Gesker, & Eliot Liucci"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
