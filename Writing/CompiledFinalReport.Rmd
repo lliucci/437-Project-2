@@ -277,10 +277,9 @@ ssk <- SumOfSquares(SilhouetteKMeans[,3])
 ssm <- SumOfSquares(SilhouetteModelBased[,3])
 
 tab <- matrix(c(ssh, ssk, ssm), ncol=1, byrow=TRUE)
-rownames(tab) <- c('Hierarchical Clustering','K-Means Clustering','Model-Based Clustering')
-colnames(tab) <- c('Sum of Squares')
-tab <- as.table(tab)
-print(tab)
+tibble(Algorithm = c('Hierarchical Clustering','K-Means Clustering','Model-Based Clustering'),
+       `Sum of Squares` = c(ssh, ssk, ssm)) %>% 
+  knitr::kable()
 ```
 
 
