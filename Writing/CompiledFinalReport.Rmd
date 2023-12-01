@@ -37,7 +37,6 @@ Below is code for three different clustering techniques, from which we will chos
 This data set contained no missing data. It did, however, have a lot of variables, meaning when trying to visualize the data using PCA made the most sense. This plot will be used when exploring cluster methods.
 
 
-
 $~$
 
 ### Data Cleaning & Exploratory Data Analysis
@@ -158,7 +157,7 @@ $~$
 
 ### K-Means Clustering
 
-K-means clustering starts with choosing a number of clusters before performing the clustering analysis. To decide how many clusters would be ideal, a Within-Group Sum of Squares (WGSS) plot was created using the original data. Based on this plot, one could contend for many appropriate numbers of clusters due to varying perspectives of the cutoff. For the purposes of this analysis, 15 clusters will be created. This number was chosen because having too many groups gets overly confusing, especially considering there are only 100 data points. While 15 is still quite a large number of clusters, it yields a WGSS of under 500, **more than half of where the WGSS is with only 1 group.** **IDK what this is trying to say, needs a grammar/wording edit**
+K-means clustering starts with choosing a number of clusters before performing the clustering analysis. To decide how many clusters would be ideal, a Within-Group Sum of Squares (WGSS) plot was created using the original data. Based on this plot, one could contend for many appropriate numbers of clusters due to varying perspectives of the cutoff. For the purposes of this analysis, 15 clusters will be created. This number was chosen because having too many groups gets overly confusing, especially considering there are only 100 data points. While 15 is still quite a large number of clusters, it yields a WGSS of under 500, which compared to 1 is much better.
 
 ```{r, fig.cap = "Within-Group Sums of Square vs. Number of Groups Plot. Used to determine the optimal number of clusters with K-Means Clustering."}
 n <- nrow(NumericData)
