@@ -7,7 +7,7 @@ output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 ```
 
 ```{r include=FALSE}
@@ -56,8 +56,8 @@ Data <- read_csv('../Data/top2018.csv')
 NumericData <- Data %>% select(4:16) %>% scale()
 
 PrinComps <- prcomp(NumericData)
-summary(PrinComps)
-PrinComps
+# summary(PrinComps)
+# PrinComps
 
 PCdat <- as.tibble(PrinComps$x[,1:2])
 
@@ -216,7 +216,7 @@ The model based clustering method assumes distributions for both the population 
 ```{r, echo = F}
 MClusters <- Mclust(NumericData)
 
-unique(MClusters$classification)
+# unique(MClusters$classification)
 
 plot(MClusters, what = "BIC", col = "black")
 ```
@@ -224,15 +224,6 @@ plot(MClusters, what = "BIC", col = "black")
 The plot above uses Bayesian Information Criterion (BIC), which penalizes models for additional components, to determine which model-based clustering method is best. Here, we want to _maximize_ the BIC. Based on the plot, the algorithm selected the "EEV" (ellipsoidal, equal volume and equal shape) model with _5_ clusters as the superior model.
 
 Based on the clusters, there is one point that stands out. Observation 44 is singled out in its own cluster; this could either indicate that this observation is an outlier or that this clustering method is faulty.
-
-```{r, echo = F}
-MClusters <- Mclust(NumericData)
-
-MClusts <- tibble(MClusts = MClusters$classification)
-PCdat <- cbind(PCdat, MClusts)
-PCdat <- PCdat %>%
-  mutate(MClusts = factor(MClusts))
-```
 
 When visualizing these clusters in the PC Plot, one can see that the point in cluster 5 does appear to be isolated compared to the other clusters. The point in cluster 5 has a lower value for PC2 than the other points. While there is some overlapping from cluster 1 across the other points, in this plot is easier to see the trends of the various clusters, especially cluster 2 and and 4.
 
@@ -278,7 +269,7 @@ ssk <- SumOfSquares(SilhouetteKMeans[,3])
 ssm <- SumOfSquares(SilhouetteModelBased[,3])
 
 tab <- matrix(c(ssh, ssk, ssm), ncol=1, byrow=TRUE)
-rownames(tab) <- c('Hierarchical SS','K-Means SS','Model-based SS')
+rownames(tab) <- c('Hierarchical Clustering','K-Means Clustering','Model-Based Clustering')
 colnames(tab) <- c('Sum of Squares')
 tab <- as.table(tab)
 print(tab)
