@@ -36,19 +36,9 @@ Below is code for three different clustering techniques, from which we will chos
 
 This data set contained no missing data. It did, however, have a lot of variables, meaning when trying to visualize the data using PCA made the most sense. This plot will be used when exploring cluster methods.
 
-
-$~$
-
 ### Data Cleaning & Exploratory Data Analysis
 
-talk about variables here, why we are getting rid of some
-
-You may include other small sections that discuss specific details (e.g.
-“data cleaning” to address some issues in your data)
-
-**WE NEED SOMEONE TO WRITE ABOUT HOW WE CAN ONLY USE NUMERIC VARIABLE IN CLUSTERING ANALYSIS**
-
-**DID WE NOT INCLUDE ANY VARIABLES IN OUR FINAL DATASET? WHY DID WE EXCLUDE THESE FROM OUR ANALYSIS?**
+This analysis will focus on only 6 variables from the dataset, specifically the quantitative variables.  Danceability, energy, key, loudness, mode, speechiness, acousticness will be used in each of the cluster methods, however PCA will be used to visualize the data. While it is possible to visualize the data without PCA, it would result in an excessive number of plots. As seen in Figure 1, PCA allows one to see a version of the numeric data in one plot. Cluster methods can be easily assessed and compared to each other. 
 
 
 ```{r, fig.cap = "Left: Scatterplot of the Spotify Data (before any clustering) in the Principal Component Space. Right: Spotify 2018 Data plotted by Danceability and Energy."}
@@ -81,10 +71,7 @@ plot2 <- ggplot(aes(x = danceability, y = energy), data = Data) +
 grid.arrange(plot1, plot2, ncol=2)
 ```
 
-
-
-**WRITE A BIT ABOUT THESE VISUALIZATIONS**
-
+In Figure 2, created using the `psych` package in `R`, we can see variable pairs that are notably correlated with each other. Energy and Loudness have a moderately strong, positive correlation (r = 0.73). All other pairs of numeric variables in this dataset have weak or non-existent correlations.
 
 ```{r, fig.cap = "Scatterplot Matix of the Quantitative Variables in the Spotify 2018 Dataset."}
 
@@ -96,16 +83,10 @@ pairs.panels(NumericData,
              )
 ```
 
-From the above scatterplot matrix, created using the `psych` package in `R`, we can see variable pairs that are notably correlated with each other. Energy and Loudness have a moderately strong, positive correlation (r = 0.73). All other pairs of numeric variables in this dataset have weak or non-existent correlations.
-
-
-$~$
 
 ## Cluster Analysis
 
 To analyze this data, three clustering methods will be explored: Agglomerative Hierarchical, K-Means, and Model-Based.
-
-$~$
 
 ### Agglomerative Heirarchical Clustering
 
@@ -152,8 +133,6 @@ ggplot(aes(x = PC1, y = PC2, color = HClusters), data = PCdat) +
 SilhouetteHAC <- silhouette(cutree(hclust(Dist, method = 'average'), 7), Dist)
 ```
 
-
-$~$
 
 ### K-Means Clustering
 
@@ -214,9 +193,6 @@ stripes(c5, type = "second", col = "black")
 
 The stripe plot is used to visualize shadow variables by themselves. In the plot above, the stripes represent just the second closest cluster. Since they are pretty far apart within each cluster, we can be confident that they should be separate clusters and do not need to be further merged.
 
-
-$~$
-
 ### Model-Based Approach
 
 The model based clustering method assumes distributions for both the population and the subpopulation. While the probability distribution functions are defined for these distributions, they will not be discussed in detail in this paper. 
@@ -254,9 +230,6 @@ ggplot(aes(x = PC1, y = PC2, color = MClusts), data = PCdat) +
 SilhouetteModelBased <- silhouette(Mclust(NumericData)$classification, Dist)
 ```
 
-
-$~$
-
 ## Results
 
 While one can look at the visualizations of these cluster methods and make gut decisions about the quality of each method for this data set, we also want to look at the sums of squares of each method.
@@ -281,10 +254,6 @@ tibble(Algorithm = c('Hierarchical Clustering','K-Means Clustering','Model-Based
        `Sum of Squares` = c(ssh, ssk, ssm)) %>% 
   knitr::kable()
 ```
-
-
-
-$~$
 
 ## Summary
 
