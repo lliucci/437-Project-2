@@ -292,7 +292,10 @@ $~$
 
 Our analysis of the Spotify 2018 Top Songs data revealed that the clustering method that yielded the lowest sum of squares value was the model-based clustering method. We used principal component analysis on the data and for the graphs since there were 16 variables and only 100 observations. Additionally, we then explored hierarchical, k-means, and model-based clustering methods. The hierarchical analysis yielded the highest sum of squares. Similarly to the k-means graph, the hierarchical scatterplot of the clusters against the principal components has dispersed clusters and patterns that are not extremely obvious. The model-based clustering had only 5 clusters, and the pattern of the clusters appears to be much more logical. These five clusters help explain patterns in the Spotify data and provides information about the data that could not be seen in graphs such as the scatterplot of danceability vs energy. This analysis only touches on the complexity of clustering methods, but we did discover that for this dataset, model-based clustering is going to be the effective clustering choice for beneficial statistical analysis.
 
-\newpage
-
 ## Citations
+\setlength{\parindent}{-0.2in}
+\setlength{\leftskip}{0.2in}
+\setlength{\parskip}{8pt}
+\noindent
 
+Tamer, N. (2018). *Top Spotify Tracks of 2018* (Version 1)[Data set]. Kaggle. https://www.kaggle.com/datasets/nadintamer/top-spotify-tracks-of-2018

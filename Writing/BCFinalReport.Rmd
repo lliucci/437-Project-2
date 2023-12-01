@@ -31,8 +31,6 @@ Below is code for three different clustering techniques, from which we will chos
 
 This data set contained no missing data. It did, however, have a lot of variables, meaning when trying to visualize the data using PCA made the most sense. This plot will be used when exploring cluster methods.
 
-**EXPLAIN OTHER VISUALS**
-
 ```{r}
 Data <- read_csv('../Data/top2018.csv')
 NumericData <- Data %>% select(4:16) %>% scale()
