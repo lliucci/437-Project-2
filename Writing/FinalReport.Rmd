@@ -21,7 +21,7 @@ library(cluster)
 
 We will be using PCA and clustering analysis to find an model structure of the data that is more easily interpreted. The goal of this is to gain an understanding of music popularity in 2018 using Spotify data. We will be using PCA to reduce the number of dimensions since there are 16 different variables and only 100 observations. From there, we will explore k-means, hierarchical, and model-based clustering to analyze the data and see what relationships occur between variables that may not be obvious without the application of clustering methods.
 
-Below is code for three different clustering techniques, from which we will chose one to use for our analysis of the Spotify data. Including all three methods ensures that the method we choose for our analysis is one that best minimizes the **sum of squares?** of the data. Although all statistical results have uncertainty, the goal is to use the best statistical method to get rid of a lot of uncertainty in the results. Clustering/classification results are useful for artists, songwriters, producers, and many more individuals that are looking for qualities of a hit song.
+Below is code for three different clustering techniques, from which we will chose one to use for our analysis of the Spotify data. Including all three methods ensures that the method we choose for our analysis is one that best maximizes the accuracy of the analysis. Although all statistical results have uncertainty, the goal is to use the best statistical method to get rid of as much uncertainty as possible in the result. Clustering/classification results are useful for artists, songwriters, producers, and many more individuals that are looking for qualities of a hit song.
 
 ### Data Cleaning & PCA
 

@@ -1,0 +1,298 @@
+---
+title: "Cluster Analysis of Spotify Top Hits of 2018"
+subtitle: "STAT 437 - Project 2"
+author: "Becky Catlett, Harley Clifton, Natasha Gesker, & Eliot Liucci"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, warning = FALSE, message = FALSE, out.width = "75%", fig.align = "center")
+```
+
+```{r include=FALSE}
+library(ape)
+library(MVA)
+library(tidyverse)
+library(mclust)
+library(cluster)
+library(psych)
+library(flexclust)
+library(gridExtra)
+```
+
+## Introduction
+
+### The Dataset
+
+The dataset being explored in this project is sourced from Kaggle.com and is called "Top Spotify Tracks of 2018." This dataset includes numerous quantitative variables as well as some qualitative variables, such as the song title, artist, and the Spotify url ID. The quantitative variables are slightly less intuitive, such as danceability, energy, key, loudness (in dB), mode, speechiness, and acousticness. Most of these quantitative variables range from 0 to 1, where 1 is the highest measure and 0 indicates a low/null value. Danceability describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. Speechiness is how often words are present in the song, and mode indicates the modality, which is whether the song is written in major (1) or minor (0). Acousticness is how acoustic the song is, versus a non-acoustic song which would be composed of lots of electronics. Energy is essentially describing the tempo of the song, whether is song is slower and sleepier or more upbeat.
+
+
+### Methodology and Statistical Approach
+
+We will be using various methods of clustering analysis to find an model structure of the data that is more easily interpreted. The goal of this is to gain an understanding of music popularity in 2018 using Spotify data. We will be using PCA to reduce the number of dimensions purely for visualization purposes, since there are 16 different variables and only 100 observations. From there, we will explore k-means, hierarchical, and model-based clustering to analyze the data and see what relationships occur between variables that may not be obvious without the application of clustering methods.
+
+Below is code for three different clustering techniques, from which we will chose one to use for our analysis of the Spotify data. Including all three methods ensures that the method we choose for our analysis is one that best maximizes the accuracy of the analysis. Although all statistical results have uncertainty, the goal is to use the best statistical method to get rid of as much uncertainty as possible in the result. Clustering/classification results are useful for artists, songwriters, producers, and many more individuals that are looking for qualities of a hit song.
+
+This data set contained no missing data. It did, however, have a lot of variables, meaning when trying to visualize the data using PCA made the most sense. This plot will be used when exploring cluster methods.
+
+
+
+$~$
+
+### Data Cleaning & Exploratory Data Analysis
+
+talk about variables here, why we are getting rid of some
+
+You may include other small sections that discuss specific details (e.g.
+“data cleaning” to address some issues in your data)
+
+**WE NEED SOMEONE TO WRITE ABOUT HOW WE CAN ONLY USE NUMERIC VARIABLE IN CLUSTERING ANALYSIS**
+
+**DID WE NOT INCLUDE ANY VARIABLES IN OUR FINAL DATASET? WHY DID WE EXCLUDE THESE FROM OUR ANALYSIS?**
+
+
+```{r, fig.cap = "Left: Scatterplot of the Spotify Data (before any clustering) in the Principal Component Space. Right: Spotify 2018 Data plotted by Danceability and Energy."}
+Data <- read_csv('../Data/top2018.csv')
+NumericData <- Data %>% select(4:16) %>% scale()
+
+PrinComps <- prcomp(NumericData)
+# summary(PrinComps)
+# PrinComps
+
+PCdat <- as.tibble(PrinComps$x[,1:2])
+
+
+plot1 <- ggplot(aes(x = PC1, y = PC2), data = PCdat) + 
+  geom_point(col = "springgreen2") +
+  labs(title = "Principal Components Space",
+       x = "Principal Component 1",
+       y = "Principal Component 2") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+plot2 <- ggplot(aes(x = danceability, y = energy), data = Data) + 
+  geom_point(col = "springgreen2") +
+  labs(title = "Scatterplot of Spotify 2018 Top Hits  \n by Danceability and Energy",
+       x = "Danceability",
+       y = "Energy") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+grid.arrange(plot1, plot2, ncol=2)
+```
+
+
+
+**WRITE A BIT ABOUT THESE VISUALIZATIONS**
+
+
+```{r, fig.cap = "Scatterplot Matix of the Quantitative Variables in the Spotify 2018 Dataset."}
+
+pairs.panels(NumericData, 
+             method = "pearson", # correlation method
+             hist.col = "springgreen2",
+             density = TRUE,  # show density plot
+             ellipses = FALSE # do not show correlation ellipses
+             )
+```
+
+From the above scatterplot matrix, created using the `psych` package in `R`, we can see variable pairs that are notably correlated with each other. Energy and Loudness have a moderately strong, positive correlation (r = 0.73). All other pairs of numeric variables in this dataset have weak or non-existent correlations.
+
+
+$~$
+
+## Cluster Analysis
+
+To analyze this data, three clustering methods will be explored: Agglomerative Hierarchical, K-Means, and Model-Based.
+
+$~$
+
+### Agglomerative Heirarchical Clustering
+
+For the hierarchical clustering method, clusters are based on a distance matrix. The *single* method connects the points based on the minimum distance of the clusters. The strange shape of the dendrogram pictured below is due to the Single Linkage which results in "chaining". Chaining occurs because the clusters just grow from a single cluster, instead of new clusters being formed. This can be problematic because we only need a single pair of points to be relatively close for clusters to merge. Therefore, clusters can be too spread out and not compact enough. The *average* method, which connects the points based on average distances of the clusters, has the same phenomenon occurring in this case.
+
+```{r, fig.cap = "Dendrograms for the Single and Average Linking Methods for Hierarchical Clustering."}
+Dist <- dist(NumericData)
+
+par(mfrow = c(1, 2))
+plot(hclust(Dist, method = 'single'), main = "Cluster Dendrogram:  \n Single Linkage")
+plot(hclust(Dist, method = 'average'), main = "Cluster Dendrogram:  \n Average Linkage")
+```
+
+The _complete_ method, which connects the points based on the maximum distance of the clusters, does not have any "chaining" issues. When determining what height to cut off the groups, a height 7 was chosen since that is the first time we start to see a lot of tiny groups begin forming into larger groups.
+
+```{r, fig.cap = "Dendrogram for the Complete Linking Method for Hierarchical Clustering."}
+plot(hclust(Dist, method = "complete"), main = "Cluster Dendrogram: Complete Linkage")
+```
+
+
+When visualizing these clusters in the principal component space, it seems that cluster 3 starts to take over most of the points. When comparing it to cluster 1, it is not entirely clear why a point should be in one group compared to another. There are also a lot of little groups that are in the outskirts of the plot. While you could argue that making less clusters by increasing the height, if the clustering logic already appears to be faulty at this point it may be detrimental to the process by making too few clusters.
+
+```{r, fig.cap = "Scatterplot of Clusters from Agglomerative Heirarchical Clustering with Complete Linkage in the Principal Component Space."}
+Clusters <- cutree(hclust(Dist, method = "complete"), h = 7)
+ClusterMerger <- tibble(HClusters = Clusters)
+PCdat <- cbind(PCdat, ClusterMerger)
+
+PCdat <- PCdat %>%
+  mutate(HClusters = factor(HClusters))
+
+ggplot(aes(x = PC1, y = PC2, color = HClusters), data = PCdat) +
+  geom_point(size = 2.5, alpha = 0.85) +
+  labs(title = "Hierarchical Clusters with Complete Linkage in Principal Component Space",
+       subtitle = "Points are colored by clusters when cutting at a height of 7",
+       x = "Principal Component 1",
+       y = "Principal Component 2",
+       color = "Cluster") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) +
+  scale_color_manual(values = c( "mediumvioletred", "deeppink", "orange1", "yellow1", "black", "lightgreen", "mediumturquoise", "deepskyblue", "plum2", "magenta3"))
+
+
+SilhouetteHAC <- silhouette(cutree(hclust(Dist, method = 'average'), 7), Dist)
+```
+
+
+$~$
+
+### K-Means Clustering
+
+K-means clustering starts with choosing a number of clusters before performing the clustering analysis. To decide how many clusters would be ideal, a Within-Group Sum of Squares (WGSS) plot was created using the original data. Based on this plot, one could contend for many appropriate numbers of clusters due to varying perspectives of the cutoff. For the purposes of this analysis, 15 clusters will be created. This number was chosen because having too many groups gets overly confusing, especially considering there are only 100 data points. While 15 is still quite a large number of clusters, it yields a WGSS of under 500, **more than half of where the WGSS is with only 1 group.** **IDK what this is trying to say, needs a grammar/wording edit**
+
+```{r, fig.cap = "Within-Group Sums of Square vs. Number of Groups Plot. Used to determine the optimal number of clusters with K-Means Clustering."}
+n <- nrow(NumericData)
+wss <- rep(0, 40)
+wss[1] <- (n - 1) * sum(sapply(NumericData, var))
+for (i in 2:40){
+  wss[i] <- sum(kmeans(NumericData,
+                       centers = i)$withinss)
+}
+
+plot(1:40, wss, type = "b", xlab = "Number of Groups",
+     ylab = "Within Groups Sum of Squares",
+     main = "Within-Group Sum of Squares (WGSS) Plot") # decided to use k = 15
+```
+
+The 'kmeans' function was used to assign each original data point to one of the 15 groups. When visualizing these clusters in the PC Plot, one can see from a single glance that these groups do not make a lot of sense for this data set. While groups tend to have clear centers and overall consistent variability within groups, this method is not ideal for interpreting what these results mean for this data set.
+
+```{r, fig.cap = "Scatterplot of Clusters from K-Means Clustering with Complete Linkage in the Principal Component Space."}
+set.seed(1234)
+KMeanClusts <- tibble(KClusters = kmeans(NumericData, centers = 15)$cluster)
+PCdat <- bind_cols(PCdat, KMeanClusts)
+
+ggplot(aes(x = PC1, y = PC2, color = factor(KClusters)), data = PCdat) +
+  geom_point(size = 2.5, alpha = 0.75) +
+  labs(title = "K-Means Clusters in Principal Component Space",
+       subtitle = "From K-Means Clustering with 15 Clusters",
+       x = "Principal Component 1",
+       y = "Principal Component 2",
+       color = "Cluster") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5),
+        plot.subtitle = element_text(hjust = 0.5)) +
+  scale_color_manual(values = c( "mediumvioletred", "deeppink", "lightpink1", "orange1","gold", "yellow1", "palegreen", "seagreen2", "mediumturquoise", "paleturquoise2", "deepskyblue", "plum2", "magenta3", "snow3", "black"))
+
+SilhouetteKMeans <- silhouette(kmeans(NumericData, centers = 15)$cluster, Dist)
+```
+
+For K-Means clustering, there is the ability to create some additional visualizations to assess the chosen number of clusters.
+
+```{r, fig.cap = "Additional Visualization where the Line Thickness represents the Nearness of the two Connected Clusters."}
+PCdat.km <- as.matrix(PCdat[, c(1:2,4)])
+
+set.seed(1234)
+c5 <- cclust(PCdat.km, k = 15, save.data = T)
+plot(c5, hull = FALSE, pch = 16)
+```
+
+In the additional visualization, the line thickness is representative of the strength of the relationship between clusters. If the line is thin, it means it is far to the next cluster; if it is thick, it is close to the next cluster.
+
+```{r, fig.cap = "Stripe Plot of the Second Closest cluster for the K-Means Results."}
+stripes(c5, type = "second", col = "black")
+```
+
+
+The stripe plot is used to visualize shadow variables by themselves. In the plot above, the stripes represent just the second closest cluster. Since they are pretty far apart within each cluster, we can be confident that they should be separate clusters and do not need to be further merged.
+
+
+$~$
+
+### Model-Based Approach
+
+The model based clustering method assumes distributions for both the population and the subpopulation. While the probability distribution functions are defined for these distributions, they will not be discussed in detail in this paper. 
+
+```{r, fig.cap = "Model Comparisons done behind the scenes by the 'Mclust' function in R. Models are ranked by BIC."}
+MClusters <- Mclust(NumericData)
+
+# unique(MClusters$classification)
+
+plot(MClusters, what = "BIC", col = "black")
+```
+
+The plot above uses Bayesian Information Criterion (BIC), which penalizes models for additional components, to determine which model-based clustering method is best. Here, we want to _maximize_ the BIC. Based on the plot, the algorithm selected the "EEV" (ellipsoidal, equal volume and equal shape) model with _5_ clusters as the superior model.
+
+Based on the clusters, there is one point that stands out. Observation 44 is singled out in its own cluster; this could either indicate that this observation is an outlier or that this clustering method is faulty.
+
+When visualizing these clusters in the PC Plot, one can see that the point in cluster 5 does appear to be isolated compared to the other clusters. The point in cluster 5 has a lower value for PC2 than the other points. While there is some overlapping from cluster 1 across the other points, in this plot is easier to see the trends of the various clusters, especially cluster 2 and and 4.
+
+```{r, fig.cap = "Scatterplot of Clusters from Model-Based Clustering with Complete Linkage in the Principal Component Space."}
+MClusts <- tibble(MClusts = MClusters$classification)
+PCdat <- cbind(PCdat, MClusts)
+PCdat <- PCdat %>%
+  mutate(MClusts = factor(MClusts))
+
+ggplot(aes(x = PC1, y = PC2, color = MClusts), data = PCdat) +
+  geom_point(size = 2.5, alpha = 0.75) +
+  labs(title = "Model-Based Clusters in Principal Component Space",
+       x = "Principal Component 1",
+       y = "Principal Component 2",
+       color = "Cluster") +
+  theme_bw() + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  scale_color_manual(values = c( "deeppink", "orange1", "yellow1", "mediumturquoise", "magenta3"))
+
+SilhouetteModelBased <- silhouette(Mclust(NumericData)$classification, Dist)
+```
+
+
+$~$
+
+## Results
+
+While one can look at the visualizations of these cluster methods and make gut decisions about the quality of each method for this data set, we also want to look at the sums of squares of each method.
+
+The hierarchical method has a sum of squares that is almost twice as large as the other two methods. While the model-based method does have a lower sum of squares than the k-means method, they do seem to be fairly close. Meaning that if researches felt that the clusters formed by the k-means method were more useful for their analysis, they would not be at a serious disadvantage for using k-means over model-based. However, based these values and the visualizations of the different clustering methods, we choose the model-based method to be the best for this data set, provided that there was no specific model goal for forming these clusters.
+
+```{r}
+SumOfSquares = function(vector){
+  placeholder <- vector(length = length(vector))
+  for(i in 1:length(vector)){
+    placeholder[i] <- sqrt((vector[i])^2)
+  }
+  sum(placeholder)
+}
+
+ssh <- SumOfSquares(SilhouetteHAC[,3])
+ssk <- SumOfSquares(SilhouetteKMeans[,3])
+ssm <- SumOfSquares(SilhouetteModelBased[,3])
+
+tab <- matrix(c(ssh, ssk, ssm), ncol=1, byrow=TRUE)
+rownames(tab) <- c('Hierarchical Clustering','K-Means Clustering','Model-Based Clustering')
+colnames(tab) <- c('Sum of Squares')
+tab <- as.table(tab)
+print(tab)
+```
+
+
+
+$~$
+
+## Summary
+
+Our analysis of the Spotify 2018 Top Songs data revealed that the clustering method that yielded the lowest sum of squares value was the model-based clustering method. We used principal component analysis on the data and for the graphs since there were 16 variables and only 100 observations. Additionally, we then explored hierarchical, k-means, and model-based clustering methods. The hierarchical analysis yielded the highest sum of squares. Similarly to the k-means graph, the hierarchical scatterplot of the clusters against the principal components has dispersed clusters and patterns that are not extremely obvious. The model-based clustering had only 5 clusters, and the pattern of the clusters appears to be much more logical. These five clusters help explain patterns in the Spotify data and provides information about the data that could not be seen in graphs such as the scatterplot of danceability vs energy. This analysis only touches on the complexity of clustering methods, but we did discover that for this dataset, model-based clustering is going to be the effective clustering choice for beneficial statistical analysis.
+
+\newpage
+
+## Citations
+
