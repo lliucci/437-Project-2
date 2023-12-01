@@ -1,7 +1,7 @@
 ---
 title: "Cluster Analysis of Spotify Top Hits of 2018"
 subtitle: "STAT 437 - Project 2"
-author: "Becky Catlett, Harley Clifton, Natasha Gesker, Eliot Liucci"
+author: "Becky Catlett, Harley Clifton, Natasha Gesker, & Eliot Liucci"
 date: "`r Sys.Date()`"
 output: pdf_document
 ---
